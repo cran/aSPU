@@ -1,6 +1,6 @@
-#' Pathway based Sum of Powered Score tests (SPUpath) and adaptive SPUpath (aSPUpath) test for meta-analyzed data.
+#' Pathway based Sum of Powered Score tests (SPUsPath) and adaptive SPUpath (aSPUsPath) test with GWAS summary statistics.
 #'
-#' It gives p-values of the SPUpath tests and aSPUpath test for meta-analyzed data.
+#' It gives p-values of the SPUsPath tests and aSPUsPath test with GWAS summary statistics.
 #'
 #' @param Zs Z-scores for each SNPs. It could be P-values if the Ps option is TRUE. 
 #'
@@ -31,7 +31,7 @@
 #' data(kegg9)
 #'
 #' # p-values of SPUpath and aSPUpath tests.
-#' out.a <- aSPUMpath(kegg9$nZ, corrSNP = kegg9$ldmatrix, pow=c(1:8, Inf),
+#' out.a <- aSPUsPath(kegg9$nZ, corrSNP = kegg9$ldmatrix, pow=c(1:8, Inf),
 #'                   pow2 = c(1,2,4,8), 
 #'                   snp.info=kegg9$snp.info, gene.info = kegg9$gene.info,
 #'                   n.perm=10, Ps = TRUE)
@@ -39,7 +39,7 @@
 #'
 #' @seealso \code{\link{simPathAR1Snp}} \code{\link{aSPUpathSingle}} \code{\link{aSPUpath}}
 
-aSPUMpath <- function(Zs, corrSNP, pow=c(1,2,4,8, Inf),
+aSPUsPath <- function(Zs, corrSNP, pow=c(1,2,4,8, Inf),
                       pow2 = c(1,2,4,8), 
                       snp.info, gene.info, n.perm=1000,
                       Ps = FALSE) {
@@ -171,11 +171,11 @@ aSPUMpath <- function(Zs, corrSNP, pow=c(1,2,4,8, Inf),
     nmvec <- NULL;
     for(ii in pow2) {
     	   for(jj in pow) {
-           	  nmvec <- c(nmvec, paste("SPUMpath",jj,",",ii,sep=""))
+           	  nmvec <- c(nmvec, paste("SPUsPath",jj,",",ii,sep=""))
            }
     }
 
-    nmvec <- c(nmvec, "aSPUMpath")
+    nmvec <- c(nmvec, "aSPUsPath")
     names(pvs) <- nmvec
     pvs
 

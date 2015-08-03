@@ -9,9 +9,9 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="date" content="2015-07-27" />
+<meta name="date" content="2015-07-31" />
 
-<title>aSPU for Meta Analized Data (aSPUM() and aSPUMpath())</title>
+<title>Adaptive Gene- and Pathway- Trait Association testing with GWAS Summary Statistics (aSPUs() and aSPUsPath())</title>
 
 
 
@@ -69,12 +69,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 <div id="header">
-<h1 class="title">aSPU for Meta Analized Data (aSPUM() and aSPUMpath())</h1>
-<h4 class="date"><em>2015-07-27</em></h4>
+<h1 class="title">Adaptive Gene- and Pathway- Trait Association testing with GWAS Summary Statistics (aSPUs() and aSPUsPath())</h1>
+<h4 class="date"><em>2015-07-31</em></h4>
 </div>
 
 
-<p>This vignette illustrates the use of the aSPU package for meta-analyzed data.</p>
+<p>This vignette illustrates the use of the aSPU package with GWAS Summary Statistics.</p>
 <div id="data" class="section level2">
 <h2>Data</h2>
 <p>We will consider the analysis of a coronary artery disease (CAD) data from the CARDIoGRAM and C4D consortium. The data set contains P value data for coronary artery disease (CAD). This study comprised 63,746 CAD cases and 130,681 controls. We mapped these SNPs to the 9th KEGG pathway (<a href="http://www.broadinstitute.org/gsea/msigdb/cards/KEGG_STEROID_BIOSYNTHESIS">KEGG_STEROID_BIOSYNTHESIS</a>) . Let’s load this subset.</p>
@@ -167,9 +167,9 @@ kegg9$PPs[<span class="dv">3</span>:<span class="dv">4</span>]</code></pre></div
 ## rs555687     rs555687   1 55325692 0.9036468
 ## rs497159     rs497159   1 55326142 0.8872636</code></pre>
 </div>
-<div id="use-of-aspum-function" class="section level2">
-<h2>Use of aSPUM function</h2>
-<p>Using the following code we can use <code>aSPUM()</code> and <code>GATES2()</code> function to get gene-wise aSPU and GATES p-value for each gene in 9th Kegg pathway.</p>
+<div id="use-of-aspus-function" class="section level2">
+<h2>Use of aSPUs function</h2>
+<p>Using the following code we can use <code>aSPUs()</code> and <code>GATES2()</code> function to get gene-wise aSPU and GATES p-value for each gene in 9th Kegg pathway.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Gps&lt;-<span class="ot">NULL</span>;
 gl &lt;-<span class="st"> </span><span class="ot">NULL</span>;
 for( g in kegg9$gene.info[,<span class="dv">1</span>]) {
@@ -182,7 +182,7 @@ for( g in kegg9$gene.info[,<span class="dv">1</span>]) {
     ldsub &lt;-<span class="st"> </span>kegg9$ldmatrix[snps, snps];
 
     if( <span class="kw">length</span>(snps) &gt;<span class="st"> </span><span class="dv">1</span>) {
-        out &lt;-<span class="st"> </span><span class="kw">aSPUM</span>(newP, <span class="dt">corrSNP=</span>ldsub , <span class="dt">pow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>, <span class="ot">Inf</span>),
+        out &lt;-<span class="st"> </span><span class="kw">aSPUs</span>(newP, <span class="dt">corrSNP=</span>ldsub , <span class="dt">pow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>, <span class="ot">Inf</span>),
                      <span class="dt">n.perm=</span><span class="dv">10000</span>, <span class="dt">Ps=</span><span class="ot">TRUE</span>)
 
         o.pvec =<span class="st"> </span><span class="kw">order</span>(newP)
@@ -191,7 +191,7 @@ for( g in kegg9$gene.info[,<span class="dv">1</span>]) {
         Gps &lt;-<span class="st"> </span><span class="kw">rbind</span>(Gps, <span class="kw">c</span>(<span class="kw">length</span>(newP),out$pvs, gatesp))
         gl &lt;-<span class="st"> </span><span class="kw">c</span>(gl, g)
     } else if (<span class="kw">length</span>(snps) ==<span class="st"> </span><span class="dv">1</span>) {
-        out &lt;-<span class="st"> </span><span class="kw">aSPUM</span>(newP, <span class="dt">corrSNP=</span>ldsub , <span class="dt">pow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>, <span class="ot">Inf</span>),
+        out &lt;-<span class="st"> </span><span class="kw">aSPUs</span>(newP, <span class="dt">corrSNP=</span>ldsub , <span class="dt">pow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>, <span class="ot">Inf</span>),
                      <span class="dt">n.perm=</span><span class="dv">10000</span>, <span class="dt">Ps=</span><span class="ot">TRUE</span>)
         gatesp &lt;-<span class="st"> </span>newP
         Gps &lt;-<span class="st"> </span><span class="kw">rbind</span>(Gps, <span class="kw">c</span>(<span class="kw">length</span>(newP),out$pvs, gatesp) )
@@ -201,33 +201,20 @@ for( g in kegg9$gene.info[,<span class="dv">1</span>]) {
 <span class="kw">colnames</span>(Gps)[<span class="dv">1</span>] &lt;-<span class="st"> &quot;nSNP&quot;</span>
 <span class="kw">rownames</span>(Gps) &lt;-<span class="st"> </span>gl
 Gps</code></pre></div>
-<pre><code>##         nSNP SPUstat1 SPUstat2 SPUstat4 SPUstat8 SPUstatInf   aSPUstat
-## SOAT1     63   0.6742   0.6483   0.6207   0.5149     0.3227 0.43825617
-## SQLE      49   0.7311   0.7177   0.6997   0.6591     0.5544 0.66003400
-## CYP51A1    8   0.8251   0.7451   0.6576   0.5902     0.5156 0.63273673
-## CYP27B1    3   0.9537   0.9530   0.9526   0.9507     0.9475 0.96040396
-## DHCR24    26   0.9294   0.8889   0.8491   0.8295     0.8231 0.89311069
-## HSD17B7   43   0.6710   0.7563   0.8124   0.7606     0.6263 0.74762524
-## MSMO1      7   0.0197   0.0173   0.0196   0.0261     0.0438 0.02859714
-## FDFT1     54   0.3220   0.3297   0.3254   0.2608     0.1476 0.20757924
-## LIPA      57   0.0000   0.0000   0.0000   0.0000     0.0000 0.00009999
-## CEL        5   0.1786   0.1961   0.2394   0.2813     0.3078 0.24847515
-## TM7SF2     1   0.7822   0.7822   0.7822   0.7822     0.7822 0.78222178
-## SOAT2     14   0.1848   0.2121   0.2581   0.2987     0.2743 0.23837616
-##                   Pg
-## SOAT1   0.3994139131
-## SQLE    0.6527898971
-## CYP51A1 0.6798247959
-## CYP27B1 0.9735500000
-## DHCR24  0.9777507000
-## HSD17B7 0.6360037948
-## MSMO1   0.0228054242
-## FDFT1   0.1360214136
-## LIPA    0.0001396509
-## CEL     0.2953563549
-## TM7SF2  0.7816163000
-## SOAT2   0.3239918282</code></pre>
-<p>The row of <code>Gps</code> means each gene, 1st column indicate the number of SNPs for each gene. 2nd to 6th column indicate SPUM p-values for each power ( 1,2,4,8 and Inf), 7th column indicate aSPUM p-value and 8th column indicate p-value of GATES method. We can see that a gene <em>LIPA</em> is very significant.</p>
+<pre><code>##         nSNP  SPUs1  SPUs2  SPUs4  SPUs8 SPUsInf      aSPUs           Pg
+## SOAT1     63 0.6539 0.6299 0.6040 0.5039  0.3176 0.43465653 0.3994139131
+## SQLE      49 0.7354 0.7231 0.7050 0.6704  0.5657 0.67203280 0.6527898971
+## CYP51A1    8 0.8205 0.7473 0.6460 0.5825  0.5074 0.62173783 0.6798247959
+## CYP27B1    3 0.9503 0.9502 0.9501 0.9496  0.9451 0.95770423 0.9735500000
+## DHCR24    26 0.9235 0.8779 0.8368 0.8173  0.8141 0.88541146 0.9777507000
+## HSD17B7   43 0.6627 0.7526 0.8112 0.7616  0.6275 0.75042496 0.6360037948
+## MSMO1      7 0.0207 0.0194 0.0212 0.0269  0.0432 0.03219678 0.0228054242
+## FDFT1     54 0.3199 0.3301 0.3247 0.2640  0.1491 0.20787921 0.1360214136
+## LIPA      57 0.0000 0.0000 0.0000 0.0000  0.0001 0.00009999 0.0001396509
+## CEL        5 0.1696 0.1867 0.2308 0.2762  0.2990 0.23737626 0.2953563549
+## TM7SF2     1 0.7787 0.7787 0.7787 0.7787  0.7787 0.77872213 0.7816163000
+## SOAT2     14 0.1846 0.2131 0.2608 0.2988  0.2756 0.23827617 0.3239918282</code></pre>
+<p>The row of <code>Gps</code> means each gene, 1st column indicate the number of SNPs for each gene. 2nd to 6th column indicate SPUs p-values for each power ( 1,2,4,8 and Inf), 7th column indicate aSPUs p-value and 8th column indicate p-value of GATES method. We can see that a gene <em>LIPA</em> is very significant.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">g =<span class="st"> &quot;LIPA&quot;</span>
     snps &lt;-
 <span class="st">    </span><span class="kw">which</span>( ( kegg9$snp.info[,<span class="dv">2</span>] ==<span class="st"> </span>kegg9$gene.info[kegg9$gene.info[,<span class="dv">1</span>]==g,<span class="dv">2</span>]) &amp;
@@ -256,18 +243,18 @@ newP</code></pre></div>
 ## 0.57388670 0.00011620 0.00002260 0.00015360 0.72022840 0.01776480 
 ## rs10887936  rs7094601  rs7922193 
 ## 0.01108720 0.08830380 0.08558400</code></pre>
-<p><em>LIPA</em> have 57 SNPs mapped and we can see that there are many significant SNPs. It makes sense that SPUM(1) have less p-value then SPUM(inf) since there are multiple significant SNPs. GATES have more power when there are small number of significant SNPs in the Gene (similar to minP test), so aSPUM have less p-value than GATES.</p>
+<p><em>LIPA</em> have 57 SNPs mapped and we can see that there are many significant SNPs. It makes sense that SPUs(1) have less p-value then SPUs(inf) since there are multiple significant SNPs. GATES have more power when there are small number of significant SNPs in the Gene (similar to minP test), so aSPUs have less p-value than GATES.</p>
 </div>
-<div id="use-of-aspumpath-function" class="section level2">
-<h2>Use of aSPUMpath function</h2>
-<p>We can get p-value for pathways as follows. Let’s perform pathway based analysis using aSPUMpath, Gates-Simes and HYST.</p>
+<div id="use-of-aspuspath-function" class="section level2">
+<h2>Use of aSPUsPath function</h2>
+<p>We can get p-value for pathways as follows. Let’s perform pathway based analysis using aSPUsPath, Gates-Simes and HYST.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">out.g &lt;-<span class="st"> </span><span class="kw">GatesSimes</span>(<span class="dt">pvec =</span> kegg9$nP, <span class="dt">ldmatrix =</span> kegg9$ldmatrix,
                     <span class="dt">snp.info=</span>kegg9$snp.info, <span class="dt">gene.info =</span> kegg9$gene.info)
 
 out.h &lt;-<span class="st"> </span><span class="kw">Hyst</span>(<span class="dt">pvec =</span> kegg9$nP, <span class="dt">ldmatrix =</span> kegg9$ldmatrix,
               <span class="dt">snp.info=</span>kegg9$snp.info, <span class="dt">gene.info =</span> kegg9$gene.info)
 
-out.a &lt;-<span class="st"> </span><span class="kw">aSPUMpath</span>(kegg9$nP, <span class="dt">corrSNP =</span> kegg9$ldmatrix, <span class="dt">pow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>, <span class="ot">Inf</span>),
+out.a &lt;-<span class="st"> </span><span class="kw">aSPUsPath</span>(kegg9$nP, <span class="dt">corrSNP =</span> kegg9$ldmatrix, <span class="dt">pow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>, <span class="ot">Inf</span>),
                    <span class="dt">pow2 =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>),
                    <span class="dt">snp.info=</span>kegg9$snp.info, <span class="dt">gene.info =</span> kegg9$gene.info,
                    <span class="dt">n.perm=</span><span class="dv">1000</span>, <span class="dt">Ps =</span> <span class="ot">TRUE</span>)
@@ -275,18 +262,18 @@ out.a &lt;-<span class="st"> </span><span class="kw">aSPUMpath</span>(kegg9$nP, 
 out.g; out.h; out.a</code></pre></div>
 <pre><code>## [1] 0.00167581</code></pre>
 <pre><code>## [1] 0.07557735</code></pre>
-<pre><code>##   SPUMpath1,1   SPUMpath2,1   SPUMpath4,1   SPUMpath8,1 SPUMpathInf,1 
-##         0.253         0.279         0.352         0.391         0.339 
-##   SPUMpath1,2   SPUMpath2,2   SPUMpath4,2   SPUMpath8,2 SPUMpathInf,2 
-##         0.072         0.079         0.101         0.137         0.129 
-##   SPUMpath1,4   SPUMpath2,4   SPUMpath4,4   SPUMpath8,4 SPUMpathInf,4 
-##         0.019         0.013         0.013         0.016         0.023 
-##   SPUMpath1,8   SPUMpath2,8   SPUMpath4,8   SPUMpath8,8 SPUMpathInf,8 
-##         0.015         0.007         0.004         0.003         0.008 
-##     aSPUMpath 
-##         0.010</code></pre>
+<pre><code>##   SPUsPath1,1   SPUsPath2,1   SPUsPath4,1   SPUsPath8,1 SPUsPathInf,1 
+##         0.265         0.293         0.353         0.388         0.334 
+##   SPUsPath1,2   SPUsPath2,2   SPUsPath4,2   SPUsPath8,2 SPUsPathInf,2 
+##         0.061         0.059         0.093         0.127         0.124 
+##   SPUsPath1,4   SPUsPath2,4   SPUsPath4,4   SPUsPath8,4 SPUsPathInf,4 
+##         0.013         0.007         0.008         0.012         0.015 
+##   SPUsPath1,8   SPUsPath2,8   SPUsPath4,8   SPUsPath8,8 SPUsPathInf,8 
+##         0.008         0.001         0.001         0.001         0.003 
+##     aSPUsPath 
+##         0.003</code></pre>
 <p>As we can see from the gene-wise analysis, there is only one very significant gene <code>LIPA</code>. In this situation Gates-Simes works well and Gate-Simes p-value is 0.0016758. On the other hand, HYST works well when there are many significant genes with similar effects.</p>
-<p>The aSPUMpath adaptively consider all SPUMpath(i,j). We can see that the p-value decrease as our 2nd parameter , <code>pow2</code>, increases. It makes sense because larger <code>pow2</code> is more effective if there are fewer associated genes.</p>
+<p>The aSPUsPath adaptively consider all SPUsPath(i,j). We can see that the p-value decrease as our 2nd parameter , <code>pow2</code>, increases. It makes sense because larger <code>pow2</code> is more effective if there are fewer associated genes.</p>
 </div>
 
 
