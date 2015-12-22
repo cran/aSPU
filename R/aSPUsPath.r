@@ -1,10 +1,12 @@
-#' Pathway based Sum of Powered Score tests (SPUsPath) and adaptive SPUpath (aSPUsPath) test with GWAS summary statistics.
+#' Pathway based Sum of Powered Score tests (SPUsPath) and adaptive SPUpath (aSPUsPath) test for single trait - pathway association with GWAS summary statistics.
 #'
 #' It gives p-values of the SPUsPath tests and aSPUsPath test with GWAS summary statistics.
 #'
 #' @param Zs Z-scores for each SNPs. It could be P-values if the Ps option is TRUE. 
 #'
-#' @param corrSNP Correaltion matirx of SNPs. Estimated from the reference population.
+#' @param corrSNP Correlation matirx of the SNPs to be tested; estimated from a
+#' reference panel (based on the same set of the reference alleles as
+#' used in calculating Z-scores).
 #'
 #' @param snp.info SNP information matrix, the 1st column is SNP id, 2nd column is chromosome #, 3rd column indicates SNP location.
 #'
@@ -26,10 +28,7 @@
 #' @references
 #' Il-Youp Kwak, Wei Pan (2015)
 #' Adaptive Gene- and Pathway-Trait Association Testing with GWAS Summary Statistics,
-#' in revision.
-#'
-#' Wei Pan, Il-Youp Kwak and Peng Wei (2015)
-#' A Powerful and Pathway-Based Adaptive Test for Genetic Association With Common or Rare Variants (Submitted)
+#' Bioinformatics, doi: 10.1093/bioinformatics/btv719
 #'
 #' @examples
 #' data(kegg9)
@@ -41,7 +40,7 @@
 #'                   n.perm=10, Ps = TRUE)
 #' out.a
 #'
-#' @seealso \code{\link{simPathAR1Snp}} \code{\link{aSPUpathSingle}} \code{\link{aSPUpath}}
+#' @seealso \code{\link{aSPUs}}
 
 aSPUsPath <- function(Zs, corrSNP, pow=c(1,2,4,8, Inf),
                       pow2 = c(1,2,4,8), 
@@ -120,10 +119,10 @@ aSPUsPath <- function(Zs, corrSNP, pow=c(1,2,4,8, Inf),
     T0sUnnorm=T0s = StdT0s = matrix(0, nrow=n.perm, ncol=length(pow)*nGenes)
     for(b in 1:n.perm){
 
-        U00<-rnorm(ko, 0, 1)
+        U00<-rnorm(k, 0, 1)
         U0 <- NULL;
         for( ss in 1:length(CH)) { # ss = 21
-          U0 <- c(U0, CH.CovSsqrt[[ss]] %*% U00[CH[[ss]]])
+          U0 <- c(U0, CH.CovSsqrt[[ss]] %*% U00[CH[[ss]]] )
         }
 
         if(Ps == TRUE)
@@ -135,7 +134,6 @@ aSPUsPath <- function(Zs, corrSNP, pow=c(1,2,4,8, Inf),
 		   indx=(SNPstart:(SNPstart+nSNPs0[iGene]-1))
                 if (pow[j] < Inf){
                     a = (sum(U0[indx]^pow[j]))
-
                     StdT0s[b, (j-1)*nGenes+iGene] = sign(a)*((abs(a)/nSNPs0[iGene]) ^(1/pow[j]))
                 }
 

@@ -1,4 +1,4 @@
-#' Pathway based Sum of Powered Score tests (SPUpath) and adaptive SPUpath (aSPUpath) test.
+#' Pathway based Sum of Powered Score tests (SPUpath) and adaptive SPUpath (aSPUpath) test for single trait - pathway association.
 #'
 #' It gives p-values of the SPUpath tests and aSPUpath test.
 #'
@@ -35,7 +35,7 @@
 #'
 #' @references
 #' Wei Pan, Il-Youp Kwak and Peng Wei (2015)
-#' A Powerful and Pathway-Based Adaptive Test for Genetic Association With Common or Rare Variants (Submitted)
+#' A Powerful and Pathway-Based Adaptive Test for Genetic Association With Common or Rare Variants, The American Journal of Human Genetics, 97, 86-98
 #'
 #' @examples
 #'
@@ -57,7 +57,7 @@
 #' ## SPUpathi,j corresponds pow = i , pow2 = j
 #' ## The last element, aSPUpath gives aSPUpath p-value.
 #'
-#' @seealso \code{\link{simPathAR1Snp}} \code{\link{aSPUpathSingle}}
+#' @seealso \code{\link{simPathAR1Snp}} 
 
 aSPUpath <- function(Y, X, cov = NULL, model=c("binomial", "gaussian"),
                      snp.info, gene.info, pow=c(1:8, Inf), pow2=c(1,2,4,8),

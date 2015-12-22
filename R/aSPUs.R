@@ -1,10 +1,12 @@
-#' Sum of Powered Score (SPUs) tests and adaptive SPU (aSPUs) test with GWAS summary statistics.
+#' Sum of Powered Score (SPUs) tests and adaptive SPU (aSPUs) test for single trait - SNP set association with GWAS summary statistics.
 #'
 #' It gives p-values of the SPUs tests and aSPUs test with GWAS summary statistics.
 #'
 #' @param Zs Z-scores for each SNPs. It could be P-values if the Ps option is TRUE. 
 #'
-#' @param corrSNP Correaltion matirx of SNPs. Estimated from the reference population.
+#' @param corrSNP Correlation matirx of the SNPs to be tested; estimated from a
+#' reference panel (based on the same set of the reference alleles as
+#' used in calculating Z-scores).
 #'
 #' @param pow power used in SPU test. A vector of the powers.
 #'
@@ -21,13 +23,7 @@
 #'
 #' Il-Youp Kwak, Wei Pan (2015)
 #' Adaptive Gene- and Pathway-Trait Association Testing with GWAS Summary Statistics,
-#' in revision.
-#'
-#' Wei Pan, Junghi Kim, Yiwei Zhang, Xiaotong Shen and Peng Wei (2014)
-#' A powerful and adaptive association test for rare variants,
-#' Genetics, 197(4), 1081-95
-#'
-#' Junghi Kim, Jeffrey R Wozniak, Bryon A Mueller, Xiaotong Shen and Wei Pan (2014) Comparison of statistical tests for group differences in brain functional networks, NeuroImage, 1;101:681-694
+#' Bioinformatics, doi: 10.1093/bioinformatics/btv719
 #'
 #' @examples
 #'
@@ -42,7 +38,7 @@
 #' newP <- kegg9$nP[snps] ;
 #' ldsub <- kegg9$ldmatrix[snps, snps];
 #' ## Get p-value for gene SOAT1. Read vignette for details.
-#' out <- aSPUs(newP, corrSNP=ldsub , pow=c(1,2,4,8, Inf), n.perm=100, Ps=TRUE)
+#' out <- aSPUs(newP, corrSNP=ldsub , pow=c(1:8, Inf), n.perm=100, Ps=TRUE)
 #'
 #' out$Ts
 #' # This is a vector of Test Statistics for SPUM and aSPUM tests.
@@ -56,9 +52,9 @@
 #' # They are p-values for corresponding SPUs tests.
 #' # The last element is p-value of aSPUs test.
 #'
-#' @seealso \code{\link{aSPUw}} \code{\link{aSPU}}
+#' @seealso \code{\link{aSPUw}} \code{\link{aSPU}} \code{\link{aSPUsPath}}
 
-aSPUs <- function(Zs, corrSNP, pow = c(1,2,4,8, Inf), n.perm = 1000, Ps = FALSE)
+aSPUs <- function(Zs, corrSNP, pow = c(1:8, Inf), n.perm = 1000, Ps = FALSE)
 {
     n <- length(Zs)
     k <- n
