@@ -1,0 +1,194 @@
+---
+title: "Adaptive Gene - Multitrait Association testing with GWAS Summary Statistics (MTaSPUsSet() )"
+date: "`r Sys.Date()`"
+author: "Il-Youp Kwak"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{gene - multitrait aSPU with GWAS Summary Statistics}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r knitr_options, echo=FALSE, results=FALSE}
+library(knitr)
+opts_chunk$set(fig.width = 12)
+```
+
+This vignette illustrates the use of MTaSPUsSet test, an adaptive gene-multitrait association testing with GWAS summary statistics. 
+
+## Data preparation
+
+We first downloaded GWAS summary statistics of Genetic
+Investigation of ANthropometric Traits ([GIANT](https://www.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium_data_files)) consortium data. We get the genomic coordinates of SNPs using [SnpTracker](http://grass.cgs.hku.hk/limx/snptracker/) software (hg19 used), and then we mapped SNPs to Genes using [MAGMA](http://ctg.cncr.nl/software/magma) software (build 37 used). We will consider testing a gene named *SAMD11* for example.
+
+Let's load *SAMD11* data first.
+```{r loading, include=FALSE}
+library(aSPU)
+```
+
+```{r loading2}
+data(SAMD11)
+attach(SAMD11)
+```
+
+`ZsM` and `PsM` are Z-scores and P-values for GIANT Man data mapped on gene *SAMD11*. (We used [MAGMA](http://ctg.cncr.nl/software/magma) software to map rs ids to genes. )
+
+```{r ZsPsM}
+round(ZsM,3)
+PsM
+```
+Both `ZsM` and `PsM` are `r dim(PsM)[1]` by `r dim(PsM)[2]` matrix. Row represent SNPs and column represent phenotypes. `r dim(PsM)[1]` SNPs are mapped on gene *SAMD11* and `r dim(PsM)[2]` number of phenotypes are considered in testing.
+
+`corSNPM` and `corPheM` are correlation among SNPs and Phenotypes respectively for GIANT Man data. 
+```{r corM}
+round(corSNPM,2)
+round(corPheM,2)
+```
+
+`ZsF` and `PsF` are Z-scores and P-values for GIANT Woman data mapped on gene *SAMD11*.
+```{r ZsPsF}
+round(ZsF,3)
+PsF
+```
+
+`corSNPF` and `corPheF` are correlation among SNPs and Phenotypes respectively for GIANT Woman data. 
+```{r corF}
+round(corSNPF,2)
+round(corPheF,2)
+```
+
+You can see that `corSNPM` and `corSNPF` are same. Yes, they are calculated from the reference population (here, we used 1000 genome CEU panel). They are same under H0 no matter what phenotype is.  
+
+## Data analysis
+
+Now, let's perform `MTaSPUsSet` and `MTaSPUsSetC` functions. `MTaSPUsSetC` is C coded version it impemented using Rcpp and RcppArmadillo package. The C coded version is faster when n.perm < 10^4. However it used (n.perm $\times$ npow1 $\times$ npow2 space) in calculation while R version just used n.perm space in calculation (complexity of C version is higher). So R version is faster when n.perm is big like n.perm = $10^6$. Thus, use C version for the 1st screening using n.perm = 1000 or $10^5$ for all the genes, and increase the number of permutation for the genens with small p-value. 
+
+```{r outFZ}
+(outFZC <- MTaSPUsSetC(ZsF, corSNP=corSNPF, corPhe = corPheF,
+           pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=FALSE))
+(outFZ <- MTaSPUsSet(ZsF, corSNP=corSNPF, corPhe = corPheF,
+           pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=FALSE))
+```
+
+You can check that `MTaSPUsSetC` is much faster here. The speed was similar when n.perm=10^4 for this example and R coded version is faster when n.perm > 10^4. If the speed matters, you can try python version which have same complexity as R version. it is a bit faster then R version. (like 1.5 times)
+
+To use Python version, first save files in `.txt` format.
+
+```{r wrwr}
+#write.table(ZsF, quote=FALSE, row.names=FALSE, col.names=FALSE, file="ZsF.txt")
+#write.table(corPheF, quote=FALSE, row.names=FALSE, col.names=FALSE, file="corPheF.txt")
+#write.table(corSNPF, quote=FALSE, row.names=FALSE, col.names=FALSE, file="corSNPF.txt")
+
+```
+`MTaSPUsSet.py` function in [py/aSPU_py](https://github.com/ikwak2/aSPU_py) do the same job with `./MTaSPUsSet.py ZsF.txt corPheF.txt corSNPF.txt 100 outF.txt`.
+
+
+Next, We can use the P-values for MTaSPUsSet test using `MTaSPUsSetC` and `MTaSPUsSet` functions. Put P-value matrix `PsF` and set `Ps=TRUE` in the option.
+```{r outFP}
+(outFPC <- MTaSPUsSetC(PsF, corSNP=corSNPF, corPhe = corPheF,
+           pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=TRUE))
+(outFP <- MTaSPUsSet(PsF, corSNP=corSNPF, corPhe = corPheF,
+           pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=TRUE))
+```
+Results are not much different.
+
+
+Next, let's try MTaSPUsSet test using GIANT Man data with input of P-values and Z-scores.
+```{r outMPZ}
+(outMPC <- MTaSPUsSetC(PsM, corSNP=corSNPM, corPhe = corPheM,
+           pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=TRUE))
+(outMZC <- MTaSPUsSetC(ZsM, corSNP=corSNPM, corPhe = corPheM,
+           pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=FALSE))
+```
+This time we got smaller P-value using `ZsM` input than `PsM` input. Why is it so? This can be answered from `corSNPM`, `corPheM` and `ZsM`.
+```{r Zsmcors}
+round(ZsM,3)
+round(corSNPM,2)
+round(corPheM,2)
+```
+In `corSNPM`, correlation between `rs4951864` and others are negative. The second column of `ZsM` looks a bit odd. It could be probable since the p-value is not very much significant and `rs11240777` might be related a bit with `Height`. However It might be related to the coding error as well. The original data set did not provide Z-scores. P-values for each SNP and beta estimate was provided in the download page of GIANT data. I transformed P-values to Z-scores by `absZs = qnorm(1 - (Ps)/2)` and then multiplied the sign of beta estimates to recover the original Z-scores. Maybe I am wrong somewhere or provided beta estimates are not all correct. In any case, it would be safe to analyze GIANT data using P-values rather than using Z-scores.
+
+
+
+```{r plots, echo=FALSE}
+plotG <- function(Ps, zlim = NULL, main = NULL, yt = NULL, title = "SNPs") {        
+    log10P <- -log(Ps,10)  
+    pos = 1:nrow(log10P)
+    y = 1:ncol(log10P)
+    log10P <- log10P
+    val <- sqrt(seq(0, 1, len=251))
+    col <- rgb(1, rev(val), rev(val))
+
+    if(is.null(yt)) {
+        yt = -length(pos)/15
+    }
+
+    if(is.null(zlim)) {
+        maxP <- max(log10P, na.rm=TRUE)
+        zlim <- c(0, maxP)
+    }
+    image.plot(pos, y, log10P, xaxt="n", yaxt="n", ylab="", xlab="",
+                    zlim=zlim, col=col, mgp=c(2.6, 1, 0), bty="n", main = main )
+    title(xlab=title, mgp=c(1, 0, 0))
+    text(yt,1,"BMI", xpd = TRUE)
+    text(yt,2,"Height", xpd = TRUE)
+    text(yt,3,"HIP", xpd = TRUE)
+    text(yt,4,"WC", xpd = TRUE)
+    text(yt,5,"Weight", xpd = TRUE)
+    text(yt,6,"WHR", xpd = TRUE)
+}
+
+plotLD <- function(ldmatrix, zlim = NULL, main = NULL, yt = NULL, title = "SNPs") {
+#    log10P <- -log(Ps,10)
+    pos = 1:nrow(ldmatrix)
+    y = 1:ncol(ldmatrix)
+    val <- sqrt(seq(0, 1, len=251))
+    col <- rgb(1, rev(val), rev(val))
+
+    if(is.null(yt)) {
+        yt = -length(pos)/15
+    }
+
+    if(is.null(zlim)) {
+        maxP <- max(ldmatrix, na.rm=TRUE)
+        zlim <- c(0, maxP)
+    }
+    image.plot(pos, y, ldmatrix, xaxt="n", yaxt="n", ylab="", xlab="",
+        zlim=zlim, col=col, mgp=c(2.6, 1, 0), bty="n", main = main )
+    title(xlab=title, mgp=c(1, 0, 0))
+    title(ylab=title, mgp=c(1, 0, 0))
+}
+
+```
+
+
+## Data Visualization of some detected genes
+So far, we demostrated how we can use the software. In this section we will visualize some identified genes. 
+
+Gene *LCORL* and *RASA2* are two of identified genes by [MGAS](http://www.ncbi.nlm.nih.gov/pubmed/25431328) using [KGG](http://grass.cgs.hku.hk/limx/kgg/) software.  
+
+```{r plot_MGAS, echo=FALSE, fig.width=7, fig.height=7}
+data(someGs)
+par(mfrow = c(2,2))
+plotG(someGs$LCORL[[1]], main = "LCORL (P-values)", zlim = c(0,18))
+plotG(someGs$RASA2[[1]], main = "RASA2 (P-values)", zlim = c(0,12))
+plotLD(abs(someGs$LCORL[[2]]), main = "LCORL (LDmatrix)")
+plotLD(abs(someGs$RASA2[[2]]), main = "RASA2 (LDmatrix)")
+```
+
+
+In the Figure, we draw image of $-\log_{10}$ transformed P-values for each SNP and trait.
+Gene *LCORL* was the most significant gene. As we can see from the Figure, there are many very significant SNPs for trait Height in Gene *LCORL*. No doubt MGAS and MTaSPUsSet identified this gene.
+
+MGAS use extended Simes procedure so it considers top few p-values in their algorithm. Thus, MGAS works well with sparse signal such as *RASA2*. Since the signal is sparse, MTaSPUsSet detect this gene with larger $\gamma_1$ and $\gamma_2$. With ($\gamma_1, \gamma_2$) = (1,8), (2,8), (4,8) and (8,8), MTaSPUsSet P-values were less than 1e-7 with $10^7$ permutations.
+
+```{r plot_MT, echo=FALSE, fig.width=7, fig.height=7}
+data(someGs)
+par(mfrow = c(2,2))
+plotG(someGs$STK33[[1]], main = "STK33 (P-values)", zlim = c(0,12))
+plotG(someGs$RPGRIP1L[[1]], main = "RPGRIP1L (P-values)", zlim = c(0,12))
+plotLD(abs(someGs$STK33[[2]]), main = "STK33 (LDmatrix)")
+plotLD(abs(someGs$RPGRIP1L[[2]]), main = "RPGRIP1L (LDmatrix)")
+```
+
+MTaSPUsSet test have advantage in detecting genes loke *STK33* and *RPGRIP1L*. We can see that signals are widely spread. MTaSPUsSet test have higher power with smaller $\gamma_1$ and $\gamma_2$. As we can see from the figure, each P-values are not very big. These genes would be hard to detect using SNP based, or gene - single trait association testing. However, MTaSPUsSet test can detect these genes by aggregating signals for all traits and SNPs. 
