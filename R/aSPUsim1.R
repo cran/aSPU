@@ -46,10 +46,7 @@ aSPUsim1 <- function(Y, X, cov = NULL, model=c("gaussian","binomial"), pow=c(1:8
         r<-Y-mean(Y)
         U<-as.vector(t(Xg) %*% r)
 
-        Xbar<-apply(Xg, 2, mean)
-        Xgb<-Xg
-        for(i in 1:nrow(Xg))
-            Xgb[i,]<-Xg[i,]-Xbar
+        Xgb <- apply(X, 2, function(x)(x-mean(x)) )
 
 	if( model == "binomial" ) {
             CovS <- mean(Y)*(1-mean(Y))*(t(Xgb) %*% Xgb)
@@ -58,6 +55,13 @@ aSPUsim1 <- function(Y, X, cov = NULL, model=c("gaussian","binomial"), pow=c(1:8
 	}
     } else {
         tdat1<-data.frame(trait=Y, cov)
+
+        if(is.null(colnames(cov))) {
+            colnames(tdat1) = c("trait", paste("cov",1:dim(cov)[2],sep=""))
+        } else {
+            colnames(tdat1) = c("trait", colnames(cov))
+        }
+        
         fit1<-glm(trait~.,family=model,data=tdat1)
         pis<-fitted.values(fit1)
         XUs<-matrix(0, nrow=n, ncol=k)

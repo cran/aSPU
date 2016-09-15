@@ -1,5 +1,7 @@
-R package, aSPU
-=================
+## R package, aSPU
+
+[![License](https://img.shields.io/badge/license-GPL%203-brightgreen.svg)](http://www.gnu.org/licenses/gpl-3.0.html) [![CRAN](http://www.r-pkg.org/badges/version/aSPU)](https://CRAN.R-project.org/package=aSPU)
+
 
 Il-Youp Kwak <ikwak@umn.edu>
 
@@ -7,21 +9,30 @@ R/aSPU is an R package for Genetic association testing methods such as aSPU, aSP
 
 ### Summary table 
 
-| Function Name    | Data Type  | Description                                    |
-|------------------|------------|------------------------------------------------|
-| aSPU, aSPUw      | Individual | Single trait; gene-based                       |
-| aSPUs            | Summary    | Single trait; gene-based                       |
-| aSPUpath         | Individual | Single trait; pathway-based                    |
-| aSPUsPath        | Summary    | Single trait; pathway-based                    |
-| GEEaSPU          | Individual | Multiple traits; single SNP based              |
-| MTaSPUs          | Summary    | Multiple traits; single SNP based              |
-| MTaSPUsSet       | Summary    | Multiple traits; gene-based                    |
-| MTaSPUsSetPath   | Summary    | Multiple traits; pathway-based                 |
+| Function Name         | Data Type  | Description                                    |
+|-----------------------|------------|------------------------------------------------|
+| aSPU, aSPUw, aSPUr    | Individual | Single trait; gene-based                       |
+| aSPUs                 | Summary    | Single trait; gene-based                       |
+| aSPUpath              | Individual | Single trait; pathway-based                    |
+| aSPUsPath             | Summary    | Single trait; pathway-based                    |
+| GEEaSPU               | Individual | Multiple traits; single SNP based              |
+| MTaSPUs               | Summary    | Multiple traits; single SNP based              |
+| MTaSPUsSet            | Summary    | Multiple traits; gene-based                    |
+| MTaSPUsSetPath        | Summary    | Multiple traits; pathway-based                 |
 
 
 *Data type indicate the structure of data set. "Individual" for individual level data. "Summary" for summary statistics data (such as Z scores or p-values of each SNP) 
 
-Some [tutorials](http://www.tc.umn.edu/~ikwak/tutorials/index.html) are available for aSPUs, aSPUsPath and MTaSPUsSet. 
+### Tutorials 
+
+Some [tutorials](https://github.com/ikwak2/aSPU_tutorials) for aSPUs, aSPUsPath and MTaSPUsSet are available. 
+ - [Mapping Snp to Gene](http://www.tc.umn.edu/~ikwak/tutorials/mappingSnpToGene2.html)
+ - [Getting correlation estimate among SNPs from reference panel](http://www.tc.umn.edu/~ikwak/tutorials/CorrFromRef.html)
+ - [R and Perl codes to perform aSPUs and MTaSPUsSet](http://www.tc.umn.edu/~ikwak/tutorials/ForMTgenes.html)
+ - [Pathway data manipulation](http://www.tc.umn.edu/~ikwak/tutorials/pathwayMani.html)
+ - [Speed comparison using R, awk and Perl](http://www.tc.umn.edu/~ikwak/tutorials/SpeedComp.html)
+ - [Vignette for aSPUs and aSPUsPath](http://www.tc.umn.edu/~ikwak/tutorials/aSPUstat.html)
+ - [Vignette for MTaSPUsSet](http://www.tc.umn.edu/~ikwak/tutorials/MTaSPUsSet.html)
 
 ### Citations
 
@@ -39,6 +50,12 @@ Comparison of statistical tests for group differences in brain functional networ
 NeuroImage, 1;101:681-694
 ```
 
+For 'aSPUr'
+```
+Peng Wei, Ying Cao, Yiwei Zhang, Zhiyuan Xu, Il-Youp Kwak, Eric Boerwinkle, Wei Pan (2016)
+On Robust Association Testing for Quantitative Traits and Rare Variants, Submitted.
+```
+
 For 'aSPUpath'
 ```
 Wei Pan, Il-Youp Kwak and Peng Wei (2015)
@@ -50,14 +67,14 @@ For 'aSPUs' and 'aSPUsPath'
 ```
 Il-Youp Kwak, Wei Pan (2015)
 Adaptive Gene- and Pathway-Trait Association Testing with GWAS Summary Statistics,
-Bioinformatics, doi: 10.1093/bioinformatics/btv719
+Bioinformatics, 32(8), 1178-1184
 ```
 
 For 'GEEaSPU'
 ```
 Yiwei Zhang, Zhiyuan Xu, Xiaotong Shen, Wei Pan (2014)
 Testing for association with multiple traits in generalized estimation equations, with application to neuroimaging data,
-Neuroimage. 96:309-25
+Neuroimage. 96, 309-325
 ```
 
 For 'MTaSPUs'
@@ -70,7 +87,7 @@ Genetic Epidemiology, 8:651-663
 For 'MTaSPUsSet' and 'MTaSPUsSetPath'
 ```
 Il-Youp Kwak, Wei Pan (2016)
-Gene- and pathway-based association tests for multiple traits with GWAS summary statistics
+Gene- and pathway-based association tests for multiple traits with GWAS summary statistics, accepted for publication in Bioinformatics. 
 ```
 
 
