@@ -112,8 +112,8 @@ aSPUwsim <- function(Y, X, cov = NULL, model=c("gaussian","binomial"), pow=c(1:8
 #            r0 <- sample(r, length(r))
 #            U0<-as.vector( t(XUs) %*% r0)
      # test stat's:
-            if (pow[j] < Inf) {T0s[b] = round( sum((U0/diagSDs)^pow[j]), digits=8) }
-            if (pow[j] == Inf) {T0s[b] = round( max(abs(U0/diagSDs)), digits=8)}
+            if (pow[j] < Inf) {T0s[b] = sum((U0/diagSDs)^pow[j]) }
+            if (pow[j] == Inf) {T0s[b] = max(abs(U0/diagSDs))}
         }
 
         pPerm0[j] = (sum(abs(Ts[j]) <= abs(T0s)))/(n.perm)
