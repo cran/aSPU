@@ -1,6 +1,6 @@
-#' Pathway based Sum of Powered Score tests (SPUpath) and adaptive SPUpath (aSPUpath) test for single trait - pathway association.
+#' Pathway based Sum of Powered Score tests (SPUpath) and adaptive SPUpath (aSPUpath) test for single trait - pathway association. (vector version, fast when n is large)
 #'
-#' It gives p-values of the SPUpath tests and aSPUpath test.
+#' It gives p-values of the SPUpath tests and aSPUpath test. Faster than aSPUsPath function when n is large (N > 10^4).
 #'
 #' @param Y Response or phenotype data. It can be a disease indicator; =0 for controls, =1 for cases.
 #' Or it can be a quantitative trait. A vector with length n (number of observations).
@@ -44,10 +44,10 @@
 #'             nSNP0=1, LOR=.2, n=40, MAFlim=c(0.05, 0.4), p0=0.05 ) }
 #'
 #' # p-values of SPUpath and aSPUpath tests.
-#' \dontrun{p.pathaspu<- aSPUpath(dat1$Y, dat1$X, snp.info = dat1$snp.info,
+#' \dontrun{p.pathaspu<- aSPUpath2(dat1$Y, dat1$X, snp.info = dat1$snp.info,
 #'          gene.info = dat1$gene.info,
 #'          model = "binomial", pow=1:8, pow2=c(1, 2, 4, 8), n.perm=1000) }
-#' \dontshow{p.pathaspu<- aSPUpath(dat1$Y, dat1$X, snp.info = dat1$snp.info,
+#' \dontshow{p.pathaspu<- aSPUpath2(dat1$Y, dat1$X, snp.info = dat1$snp.info,
 #'          gene.info = dat1$gene.info,
 #'          model = "binomial", pow=1:8, pow2=c(1, 2, 4, 8), n.perm=30) }
 #' p.pathaspu
@@ -58,7 +58,7 @@
 #'
 #' @seealso \code{\link{simPathAR1Snp}} 
 
-aSPUpath <- function(Y, X, cov = NULL, model=c("binomial", "gaussian"),
+aSPUpath2 <- function(Y, X, cov = NULL, model=c("binomial", "gaussian"),
                      snp.info, gene.info, pow=c(1:8, Inf), pow2=c(1,2,4,8),
                      n.perm=200, usePCs=F, varprop=0.95 ){
 
@@ -98,8 +98,8 @@ aSPUpath <- function(Y, X, cov = NULL, model=c("binomial", "gaussian"),
             indx=(SNPstart:(SNPstart+nSNPs[iGene]-1))
             Xpcs<-extractPCs(X[, indx], cutoff=varprop)
             Xg<-cbind(Xg, Xpcs)
-            if (is.null(ncol(Xpcs))) nSNPs0[iGene]=1
-            else nSNPs0[iGene]=ncol(Xpcs)
+            if (is.null(ncol(Xpcs))) { nSNPs0[iGene]=1
+            } else nSNPs0[iGene]=ncol(Xpcs)
         }
     } else { Xg=X; nSNPs0=nSNPs}
 
@@ -138,73 +138,76 @@ aSPUpath <- function(Y, X, cov = NULL, model=c("binomial", "gaussian"),
     nGenes=length(nSNPs0)
 
     ## test stat's:
-    StdTs<-rep(0, length(pow)*nGenes)
-    for(j in 1:length(pow))
-        for(iGene in 1:nGenes){
-            if (iGene==1) SNPstart=1 else SNPstart=sum(nSNPs0[1:(iGene-1)])+1
-            indx=(SNPstart:(SNPstart+nSNPs0[iGene]-1))
-            if (pow[j] < Inf){
-                a= (sum(U[indx]^pow[j]))
-                StdTs[(j-1)*nGenes+iGene] = sign(a)*((abs(a)/nSNPs0[iGene]) ^(1/pow[j]))
+    StdTs <- rep(0, length(pow) * nGenes)
+    for (j in 1:length(pow)) {
+        for (iGene in 1:nGenes) {
+            if (iGene == 1) {
+                SNPstart = 1
+            } else SNPstart = sum(nSNPs0[1:(iGene - 1)]) + 1
+            indx = (SNPstart:(SNPstart + nSNPs0[iGene] - 1))
+            if (pow[j] < Inf) {
+                a = (sum(U[indx]^pow[j]))
+                StdTs[(j - 1) * nGenes + iGene] = sign(a) * ((abs(a)/nSNPs0[iGene])^(1/pow[j]))
             } else {
-                StdTs[(j-1)*nGenes+iGene] =max(abs(U[indx]))
+                StdTs[(j - 1) * nGenes + iGene] = max(abs(U[indx]))
             }
         }
-
-    ## Permutations:
-    StdT0s = matrix(0, nrow=n.perm, ncol=length(pow)*nGenes)
-    for(b in 1:n.perm){
-        R0 <- sample(r, length(r))
-#########Null score vector:
-        U0<-t(XUs) %*% R0
-        
-        ## test stat's:
-        for(j in 1:length(pow))
-            for(iGene in 1:nGenes){
-                if (iGene==1) SNPstart=1 else SNPstart=sum(nSNPs0[1:(iGene-1)])+1
-                indx=(SNPstart:(SNPstart+nSNPs0[iGene]-1))
-                if (pow[j] < Inf){
-                    a = (sum(U0[indx]^pow[j]))
-
-                    StdT0s[b, (j-1)*nGenes+iGene] = sign(a)*((abs(a)/nSNPs0[iGene]) ^(1/pow[j]))
-                } else StdT0s[b, (j-1)*nGenes+iGene] = max(abs(U0[indx]))
-            }
     }
     
-   #combine gene-level stats to obtain pathway-lelev stats:
-    Ts2<-rep(0, length(pow)*length(pow2))
-    T0s2<-matrix(0, nrow=n.perm, ncol=length(pow)*length(pow2))
-    for(j2 in 1:length(pow2)){
-        for(j in 1:length(pow)){
-            if(pow2[j2] < Inf) {
-                
-                Ts2[(j2-1)*length(pow) +j] = sum(StdTs[((j-1)*nGenes+1):(j*nGenes)]^pow2[j2])
-                for(b in 1:n.perm){
-                    T0s2[b, (j2-1)*length(pow) +j] = sum(StdT0s[b, ((j-1)*nGenes+1):(j*nGenes)]^pow2[j2])
-                }
+    Ts2 <- rep(0, length(pow) * length(pow2))
+    for (j2 in 1:length(pow2)) {
+        for (j in 1:length(pow)) {
+            if (pow2[j2] < Inf) {
+                Ts2[(j2 - 1) * length(pow) + j] = sum(StdTs[((j - 1) * nGenes + 1):(j * nGenes)]^pow2[j2])
             } else {
-                Ts2[(j2-1)*length(pow) +j] =
-                    max(StdTs[((j-1)*nGenes+1):(j*nGenes)])
-                for(b in 1:n.perm){
-                    T0s2[b, (j2-1)*length(pow) +j] = max(StdT0s[b, ((j-1)*nGenes+1):(j*nGenes)])
-                }
+                Ts2[(j2 - 1) * length(pow) + j] = max(StdTs[((j - 1) * nGenes + 1):(j * nGenes)])
             }
         }
     }
+    
+    s <- sample(1:10^8, n.perm)    
+    pPerm0 = rep(NA, length(pow)*length(pow2))
+    T0s = numeric(n.perm)    
+    Ts2t <- rep(0, length(pow) * length(pow2))
+    T0st = rep(0, nGenes*length(pow))
 
-   # permutation-based p-values:
-    pPerm2 = rep(NA, length(pow)*length(pow2));
-    pvs = NULL;
-
-    for(j in 1:(length(pow)*length(pow2))) {
-        pPerm2[j] = sum( abs(Ts2[j]) < abs(T0s2[,j]))/n.perm
+    for (j2 in 1:length(pow2)) {
+        for (j in 1:length(pow)) {
+            set.seed(s)
+            for (b in 1:n.perm) {
+                R0 <- sample(r, length(r))
+                U0 <- t(XUs) %*% R0
+                
+                for (iGene in 1:nGenes) {
+                    if (iGene == 1) {
+                        SNPstart = 1
+                    } else SNPstart = sum(nSNPs0[1:(iGene - 1)]) + 1
+                    indx = (SNPstart:(SNPstart + nSNPs0[iGene] - 1))
+                    if (pow[j] < Inf) {
+                        a = (sum(U0[indx]^pow[j]))
+                        T0st[(j - 1) * nGenes + iGene] = sign(a) * 
+                            ((abs(a)/nSNPs0[iGene])^(1/pow[j]))
+                    } else T0st[(j - 1) * nGenes + iGene] = max(abs(U0[indx]))
+                }
+                
+                if (pow2[j2] < Inf) {
+                    T0s[b] = sum(T0st[((j - 1) * nGenes + 1):(j * nGenes)]^pow2[j2])
+                } else {
+                    T0s[b] =
+                        max(T0st[((j-1) * nGenes + 1):(j * nGenes)])
+                }
+            }
+            
+            pPerm0[(j2 - 1) * length(pow) + j] = sum(abs(Ts2[(j2 - 1) * length(pow) + j]) <= abs(T0s))/n.perm
+            P0s = ((n.perm - rank(abs(T0s))) + 1)/(n.perm)
+            if (j == 1 && j2 ==1) { 
+                minp0 = P0s
+            } else minp0[which(minp0 > P0s)] = P0s[which(minp0 > P0s)]
+        }
     }
-
-    P0s2 = PermPvs(T0s2)
-    minP0s2 = apply(P0s2, 1, min)
-    minP2 =  sum( min(pPerm2) > minP0s2 )/n.perm
-    minP1s<-minP2s<-minPUs<-rep(NA, length(pow2))
-    pvs=c(pPerm2, minP2)
+    
+    Paspu <- (sum(minp0 <= min(pPerm0)) + 1)/(n.perm + 1)
+    pvs <- c(pPerm0, Paspu)
 
     nmvec <- NULL;
     for(ii in pow2) {

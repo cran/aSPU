@@ -42,15 +42,11 @@ attach(SAMD11)
 
 
 }
-\author{
-Il-Youp Kwak and Wei Pan
-}
 \references{
 Il-Youp Kwak, Wei Pan (2016)
 Gene- and pathway-based association tests for multiple
      traits with GWAS summary statistics, Bioinformatics, doi:10.1093/bioinformatics/btw577
 }
-\seealso{
-\code{\link{MTaSPUsSetC}}
+\author{
+Il-Youp Kwak and Wei Pan
 }
-

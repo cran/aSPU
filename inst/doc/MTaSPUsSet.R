@@ -26,10 +26,13 @@ round(corSNPF,2)
 round(corPheF,2)
 
 ## ----outFZ---------------------------------------------------------------
-(outFZC <- MTaSPUsSetC(ZsF, corSNP=corSNPF, corPhe = corPheF,
-           pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=FALSE))
 (outFZ <- MTaSPUsSet(ZsF, corSNP=corSNPF, corPhe = corPheF,
            pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=FALSE))
+
+# available in R/aSPUc from my github
+#(outFZC <- MTaSPUsSetC(ZsF, corSNP=corSNPF, corPhe = corPheF,
+#           pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=FALSE))
+
 
 ## ----wrwr----------------------------------------------------------------
 #write.table(ZsF, quote=FALSE, row.names=FALSE, col.names=FALSE, file="ZsF.txt")
@@ -38,15 +41,18 @@ round(corPheF,2)
 
 
 ## ----outFP---------------------------------------------------------------
-(outFPC <- MTaSPUsSetC(PsF, corSNP=corSNPF, corPhe = corPheF,
-           pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=TRUE))
 (outFP <- MTaSPUsSet(PsF, corSNP=corSNPF, corPhe = corPheF,
            pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=TRUE))
 
+# available in R/aSPUc from my github
+#(outFPC <- MTaSPUsSetC(PsF, corSNP=corSNPF, corPhe = corPheF,
+#           pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=TRUE))
+
+
 ## ----outMPZ--------------------------------------------------------------
-(outMPC <- MTaSPUsSetC(PsM, corSNP=corSNPM, corPhe = corPheM,
+(outMPC <- MTaSPUsSet(PsM, corSNP=corSNPM, corPhe = corPheM,
            pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=TRUE))
-(outMZC <- MTaSPUsSetC(ZsM, corSNP=corSNPM, corPhe = corPheM,
+(outMZC <- MTaSPUsSet(ZsM, corSNP=corSNPM, corPhe = corPheM,
            pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=FALSE))
 
 ## ----Zsmcors-------------------------------------------------------------

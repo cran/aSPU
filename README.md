@@ -1,6 +1,6 @@
 ## R package, aSPU
 
-[![License](https://img.shields.io/badge/license-GPL%203-brightgreen.svg)](http://www.gnu.org/licenses/gpl-3.0.html) [![CRAN](http://www.r-pkg.org/badges/version/aSPU)](https://CRAN.R-project.org/package=aSPU)
+[![CRAN](http://www.r-pkg.org/badges/version/aSPU)](https://CRAN.R-project.org/package=aSPU)
 
 
 Il-Youp Kwak <ikwak@umn.edu>
@@ -125,3 +125,18 @@ Or, with `devtools`:
 library(devtools)
 install_github("ikwak2/aSPU")
 ```
+
+
+### License
+
+The R/aSPU package is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License,
+version 3, as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful, but
+without any warranty; without even the implied warranty of
+merchantability or fitness for a particular purpose.  See the GNU
+General Public License for more details.
+
+A copy of the GNU General Public License, version 3, is available at
+<https://www.r-project.org/Licenses/GPL-3>

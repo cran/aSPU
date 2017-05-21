@@ -22,7 +22,6 @@
 #'
 #' @param prune if it is TRUE, do pruing before the test using pruneSNP function. 
 #'
-#' @export
 #' @return P-values for SPUMpath tests and aSPUMpath test.
 #'
 #' @author Il-Youp Kwak and Wei Pan
@@ -30,7 +29,7 @@
 #' @references
 #' Il-Youp Kwak, Wei Pan (2015)
 #' Adaptive Gene- and Pathway-Trait Association Testing with GWAS Summary Statistics,
-#' Bioinformatics, doi: 10.1093/bioinformatics/btv719
+#' Bioinformatics, 32(8):1178-1184 
 #'
 #' @examples
 #' data(kegg9)
@@ -45,11 +44,13 @@
 #'
 #' @seealso \code{\link{aSPUs}}
 
+
 aSPUsPath <- function(Zs, corSNP, pow=c(1,2,4,8, Inf),
                       pow2 = c(1,2,4,8), 
                       snp.info, gene.info, n.perm=1000,
                       Ps = FALSE, prune=TRUE) {
 
+    
     if(prune== TRUE) {
         pr <- pruneSNP(corSNP)
         if( length(pr$to.erase) > 0 ) {
@@ -166,10 +167,17 @@ aSPUsPath <- function(Zs, corSNP, pow=c(1,2,4,8, Inf),
     T0s2<-matrix(0, nrow=n.perm, ncol=length(pow)*length(pow2))
     for(j2 in 1:length(pow2)){
         for(j in 1:length(pow)){
-            Ts2[(j2-1)*length(pow) +j] = sum(StdTs[((j-1)*nGenes+1):(j*nGenes)]^pow2[j2])
-            for(b in 1:n.perm){
-                T0s2[b, (j2-1)*length(pow) +j] = sum(StdT0s[b, ((j-1)*nGenes+1):(j*nGenes)]^pow2[j2])
-            }
+            if(pow2[j2] < Inf) {
+                Ts2[(j2-1)*length(pow) +j] = sum(StdTs[((j-1)*nGenes+1):(j*nGenes)]^pow2[j2])
+                for(b in 1:n.perm){
+                    T0s2[b, (j2-1)*length(pow) +j] = sum(StdT0s[b, ((j-1)*nGenes+1):(j*nGenes)]^pow2[j2])
+                }
+            } else {
+                Ts2[(j2-1)*length(pow) +j] = max(StdTs[((j-1)*nGenes+1):(j*nGenes)])
+                for(b in 1:n.perm){
+                    T0s2[b, (j2-1)*length(pow) +j] = max(StdT0s[b, ((j-1)*nGenes+1):(j*nGenes)])
+                }
+            }   
         }
     }
 
@@ -202,5 +210,4 @@ aSPUsPath <- function(Zs, corSNP, pow=c(1,2,4,8, Inf),
     pvs
 
 }
-
 
