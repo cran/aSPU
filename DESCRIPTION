@@ -1,6 +1,6 @@
 Package: aSPU
-Version: 1.47
-Date: 2017-5-20
+Version: 1.48
+Date: 2017-6-24
 Title: Adaptive Sum of Powered Score Test
 Description: R codes for the (adaptive) Sum of Powered Score ('SPU' and 'aSPU')
     tests, inverse variance weighted Sum of Powered score ('SPUw' and 'aSPUw') tests
@@ -29,6 +29,6 @@ License: GPL-3
 URL: https://github.com/ikwak2/aSPU
 RoxygenNote: 6.0.1
 NeedsCompilation: no
-Packaged: 2017-05-20 19:29:45 UTC; ikwak
+Packaged: 2017-06-24 16:22:59 UTC; ikwak
 Repository: CRAN
-Date/Publication: 2017-05-21 07:38:23 UTC
+Date/Publication: 2017-06-24 22:22:56 UTC

@@ -316,13 +316,13 @@ attach(SAMD11)
 </code></pre>
 
 <pre><code>## MTSPUsSet1,1 MTSPUsSet1,2 MTSPUsSet1,4 MTSPUsSet1,8 MTSPUsSet2,1 
-##    0.4800000    0.9500000    0.9800000    1.0000000    0.8200000 
+##    0.5200000    0.9800000    0.9900000    0.9900000    0.7700000 
 ## MTSPUsSet2,2 MTSPUsSet2,4 MTSPUsSet2,8 MTSPUsSet4,1 MTSPUsSet4,2 
-##    0.8500000    0.8700000    0.8600000    0.8700000    0.8500000 
+##    0.8000000    0.8000000    0.7800000    0.8100000    0.8000000 
 ## MTSPUsSet4,4 MTSPUsSet4,8 MTSPUsSet8,1 MTSPUsSet8,2 MTSPUsSet8,4 
-##    0.8300000    0.8100000    0.8600000    0.8400000    0.8400000 
+##    0.8100000    0.8100000    0.8200000    0.8000000    0.8000000 
 ## MTSPUsSet8,8   MTaSPUsSet 
-##    0.8400000    0.8514851
+##    0.8000000    0.8910891
 </code></pre>
 
 <pre><code class="r"># available in R/aSPUc from my github
@@ -346,13 +346,13 @@ attach(SAMD11)
 </code></pre>
 
 <pre><code>## MTSPUsSet1,1 MTSPUsSet1,2 MTSPUsSet1,4 MTSPUsSet1,8 MTSPUsSet2,1 
-##    0.5900000    0.6400000    0.6500000    0.6600000    0.6600000 
+##    0.5900000    0.6200000    0.6500000    0.6700000    0.6800000 
 ## MTSPUsSet2,2 MTSPUsSet2,4 MTSPUsSet2,8 MTSPUsSet4,1 MTSPUsSet4,2 
-##    0.6600000    0.6700000    0.6700000    0.7300000    0.6800000 
+##    0.7000000    0.7000000    0.6800000    0.7400000    0.7200000 
 ## MTSPUsSet4,4 MTSPUsSet4,8 MTSPUsSet8,1 MTSPUsSet8,2 MTSPUsSet8,4 
-##    0.6600000    0.6600000    0.7300000    0.7100000    0.7100000 
+##    0.7100000    0.7100000    0.7500000    0.7400000    0.7300000 
 ## MTSPUsSet8,8   MTaSPUsSet 
-##    0.6900000    0.7128713
+##    0.7300000    0.7128713
 </code></pre>
 
 <pre><code class="r"># available in R/aSPUc from my github
@@ -369,13 +369,13 @@ attach(SAMD11)
 </code></pre>
 
 <pre><code>## MTSPUsSet1,1 MTSPUsSet1,2 MTSPUsSet1,4 MTSPUsSet1,8 MTSPUsSet2,1 
-##    0.3000000    0.3800000    0.4900000    0.5700000    0.5100000 
+##    0.2100000    0.3900000    0.5600000    0.6600000    0.5000000 
 ## MTSPUsSet2,2 MTSPUsSet2,4 MTSPUsSet2,8 MTSPUsSet4,1 MTSPUsSet4,2 
-##    0.5800000    0.6800000    0.7200000    0.6600000    0.7400000 
+##    0.6500000    0.7600000    0.7600000    0.7000000    0.7600000 
 ## MTSPUsSet4,4 MTSPUsSet4,8 MTSPUsSet8,1 MTSPUsSet8,2 MTSPUsSet8,4 
-##    0.7400000    0.7400000    0.6700000    0.7100000    0.7200000 
+##    0.7700000    0.7700000    0.7400000    0.7500000    0.7400000 
 ## MTSPUsSet8,8   MTaSPUsSet 
-##    0.7200000    0.4257426
+##    0.7300000    0.3564356
 </code></pre>
 
 <pre><code class="r">(outMZC &lt;- MTaSPUsSet(ZsM, corSNP=corSNPM, corPhe = corPheM,
@@ -383,13 +383,13 @@ attach(SAMD11)
 </code></pre>
 
 <pre><code>## MTSPUsSet1,1 MTSPUsSet1,2 MTSPUsSet1,4 MTSPUsSet1,8 MTSPUsSet2,1 
-##    0.0500000    0.2300000    0.3600000    0.4500000    0.5100000 
+##   0.02000000   0.25000000   0.40000000   0.46000000   0.53000000 
 ## MTSPUsSet2,2 MTSPUsSet2,4 MTSPUsSet2,8 MTSPUsSet4,1 MTSPUsSet4,2 
-##    0.6800000    0.7400000    0.7600000    0.7000000    0.7900000 
+##   0.61000000   0.65000000   0.71000000   0.66000000   0.73000000 
 ## MTSPUsSet4,4 MTSPUsSet4,8 MTSPUsSet8,1 MTSPUsSet8,2 MTSPUsSet8,4 
-##    0.8200000    0.8200000    0.7800000    0.8000000    0.7900000 
+##   0.74000000   0.75000000   0.70000000   0.72000000   0.72000000 
 ## MTSPUsSet8,8   MTaSPUsSet 
-##    0.7900000    0.1683168
+##   0.72000000   0.05940594
 </code></pre>
 
 <p>This time we got smaller P-value using <code>ZsM</code> input than <code>PsM</code> input. Why is it so? This can be answered from <code>corSNPM</code>, <code>corPheM</code> and <code>ZsM</code>.</p>
