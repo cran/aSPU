@@ -1,31 +1,31 @@
-## ----knitr_options, echo=FALSE, results=FALSE----------------------------
+## ----knitr_options, echo=FALSE, results=FALSE---------------------------------
 library(knitr)
 opts_chunk$set(fig.width = 12)
 
-## ----loading, include=FALSE----------------------------------------------
+## ----loading, include=FALSE---------------------------------------------------
 library(aSPU)
 
-## ----loading2------------------------------------------------------------
+## ----loading2-----------------------------------------------------------------
 data(SAMD11)
 attach(SAMD11)
 
-## ----ZsPsM---------------------------------------------------------------
+## ----ZsPsM--------------------------------------------------------------------
 round(ZsM,3)
 PsM
 
-## ----corM----------------------------------------------------------------
+## ----corM---------------------------------------------------------------------
 round(corSNPM,2)
 round(corPheM,2)
 
-## ----ZsPsF---------------------------------------------------------------
+## ----ZsPsF--------------------------------------------------------------------
 round(ZsF,3)
 PsF
 
-## ----corF----------------------------------------------------------------
+## ----corF---------------------------------------------------------------------
 round(corSNPF,2)
 round(corPheF,2)
 
-## ----outFZ---------------------------------------------------------------
+## ----outFZ--------------------------------------------------------------------
 (outFZ <- MTaSPUsSet(ZsF, corSNP=corSNPF, corPhe = corPheF,
            pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=FALSE))
 
@@ -34,13 +34,13 @@ round(corPheF,2)
 #           pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=FALSE))
 
 
-## ----wrwr----------------------------------------------------------------
+## ----wrwr---------------------------------------------------------------------
 #write.table(ZsF, quote=FALSE, row.names=FALSE, col.names=FALSE, file="ZsF.txt")
 #write.table(corPheF, quote=FALSE, row.names=FALSE, col.names=FALSE, file="corPheF.txt")
 #write.table(corSNPF, quote=FALSE, row.names=FALSE, col.names=FALSE, file="corSNPF.txt")
 
 
-## ----outFP---------------------------------------------------------------
+## ----outFP--------------------------------------------------------------------
 (outFP <- MTaSPUsSet(PsF, corSNP=corSNPF, corPhe = corPheF,
            pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=TRUE))
 
@@ -49,18 +49,18 @@ round(corPheF,2)
 #           pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=TRUE))
 
 
-## ----outMPZ--------------------------------------------------------------
+## ----outMPZ-------------------------------------------------------------------
 (outMPC <- MTaSPUsSet(PsM, corSNP=corSNPM, corPhe = corPheM,
            pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=TRUE))
 (outMZC <- MTaSPUsSet(ZsM, corSNP=corSNPM, corPhe = corPheM,
            pow=c(1,2,4,8),  pow2 = c(1,2,4,8), n.perm=100, Ps=FALSE))
 
-## ----Zsmcors-------------------------------------------------------------
+## ----Zsmcors------------------------------------------------------------------
 round(ZsM,3)
 round(corSNPM,2)
 round(corPheM,2)
 
-## ----plots, echo=FALSE---------------------------------------------------
+## ----plots, echo=FALSE--------------------------------------------------------
 plotG <- function(Ps, zlim = NULL, main = NULL, yt = NULL, title = "SNPs") {        
     log10P <- -log(Ps,10)  
     pos = 1:nrow(log10P)
@@ -110,7 +110,7 @@ plotLD <- function(ldmatrix, zlim = NULL, main = NULL, yt = NULL, title = "SNPs"
 }
 
 
-## ----plot_MGAS, echo=FALSE, fig.width=7, fig.height=7--------------------
+## ----plot_MGAS, echo=FALSE, fig.width=7, fig.height=7-------------------------
 data(someGs)
 par(mfrow = c(2,2))
 plotG(someGs$LCORL[[1]], main = "LCORL (P-values)", zlim = c(0,18))
@@ -118,7 +118,7 @@ plotG(someGs$RASA2[[1]], main = "RASA2 (P-values)", zlim = c(0,12))
 plotLD(abs(someGs$LCORL[[2]]), main = "LCORL (LDmatrix)")
 plotLD(abs(someGs$RASA2[[2]]), main = "RASA2 (LDmatrix)")
 
-## ----plot_MT, echo=FALSE, fig.width=7, fig.height=7----------------------
+## ----plot_MT, echo=FALSE, fig.width=7, fig.height=7---------------------------
 data(someGs)
 par(mfrow = c(2,2))
 plotG(someGs$STK33[[1]], main = "STK33 (P-values)", zlim = c(0,12))
