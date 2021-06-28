@@ -11,34 +11,80 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
-<meta name="date" content="2020-05-13" />
+<meta name="date" content="2021-06-28" />
 
 <title>Adaptive Gene- and Pathway- Trait Association testing with GWAS Summary Statistics (aSPUs() and aSPUsPath())</title>
 
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 
-<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -47,9 +93,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -103,6 +149,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   }
 })();
 </script>
+
 
 
 
@@ -299,15 +346,15 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <h1 class="title toc-ignore">Adaptive Gene- and Pathway- Trait Association testing with GWAS Summary Statistics (aSPUs() and aSPUsPath())</h1>
-<h4 class="date">2020-05-13</h4>
+<h4 class="date">2021-06-28</h4>
 
 
 
 <p>This vignette illustrates the use of the aSPU package with GWAS Summary Statistics.</p>
 <div id="data" class="section level2">
 <h2>Data</h2>
-<p>We will consider the analysis of a coronary artery disease (CAD) data from the CARDIoGRAM and C4D consortium. The data set contains P value data for coronary artery disease (CAD). This study comprised 63,746 CAD cases and 130,681 controls. We mapped these SNPs to the 9th KEGG pathway (<a href="http://www.broadinstitute.org/gsea/msigdb/cards/KEGG_STEROID_BIOSYNTHESIS">KEGG_STEROID_BIOSYNTHESIS</a>) . Let’s load this subset.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(aSPU)</a></code></pre></div>
+<p>We will consider the analysis of a coronary artery disease (CAD) data from the CARDIoGRAM and C4D consortium. The data set contains P value data for coronary artery disease (CAD). This study comprised 63,746 CAD cases and 130,681 controls. We mapped these SNPs to the 9th KEGG pathway (<a href="http://software.broadinstitute.org/gsea/msigdb/cards/KEGG_STEROID_BIOSYNTHESIS">KEGG_STEROID_BIOSYNTHESIS</a>) . Let’s load this subset.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">library</span>(aSPU)</span></code></pre></div>
 <pre><code>## Loading required package: gee</code></pre>
 <pre><code>## Loading required package: MASS</code></pre>
 <pre><code>## Loading required package: mvtnorm</code></pre>
@@ -315,23 +362,27 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <pre><code>## Loading required package: spam</code></pre>
 <pre><code>## Loading required package: dotCall64</code></pre>
 <pre><code>## Loading required package: grid</code></pre>
-<pre><code>## Spam version 2.5-1 (2019-12-12) is loaded.
-## Type 'help( Spam)' or 'demo( spam)' for a short introduction 
+<pre><code>## Spam version 2.7-0 (2021-06-25) is loaded.
+## Type &#39;help( Spam)&#39; or &#39;demo( spam)&#39; for a short introduction 
 ## and overview of this package.
 ## Help for individual functions is also obtained by adding the
-## suffix '.spam' to the function name, e.g. 'help( chol.spam)'.</code></pre>
+## suffix &#39;.spam&#39; to the function name, e.g. &#39;help( chol.spam)&#39;.</code></pre>
 <pre><code>## 
-## Attaching package: 'spam'</code></pre>
-<pre><code>## The following objects are masked from 'package:base':
+## Attaching package: &#39;spam&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:mvtnorm&#39;:
+## 
+##     rmvnorm</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
 ## 
 ##     backsolve, forwardsolve</code></pre>
-<pre><code>## Loading required package: maps</code></pre>
+<pre><code>## Loading required package: viridis</code></pre>
+<pre><code>## Loading required package: viridisLite</code></pre>
 <pre><code>## See https://github.com/NCAR/Fields for
 ##  an extensive vignette, other supplements and source code</code></pre>
 <pre><code>## Loading required package: matrixStats</code></pre>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw">data</span>(kegg9)</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="kw">data</span>(kegg9)</span></code></pre></div>
 <p>The 9th Kegg pathway contains 16 genes.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">kegg9<span class="op">$</span>gene.info</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a>kegg9<span class="op">$</span>gene.info</span></code></pre></div>
 <pre><code>##         V4 V1        V2        V3
 ## 1    SOAT1  1 179261017 179326453
 ## 2      LSS 21  47606360  47650738
@@ -348,8 +399,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## 14  TM7SF2 11  64877341  64885707
 ## 16   SOAT2 12  53495274  53520323</code></pre>
 <p>The <code>PPs</code> is a list object contains the SNP information for each genes.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="co">## SNPs mapped on 3rd and 4th genes of 9th Kegg pathway</span></a>
-<a class="sourceLine" id="cb18-2" data-line-number="2">kegg9<span class="op">$</span>PPs[<span class="dv">3</span><span class="op">:</span><span class="dv">4</span>]</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="co">## SNPs mapped on 3rd and 4th genes of 9th Kegg pathway</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a>kegg9<span class="op">$</span>PPs[<span class="dv">3</span><span class="op">:</span><span class="dv">4</span>]</span></code></pre></div>
 <pre><code>## $CYP51A1
 ##                    V1 V2       V3        V4
 ## rs7796370   rs7796370  7 91739652 0.9035991
@@ -367,20 +418,20 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## rs10783975 rs10783975 12 58157977 0.7783928
 ## rs276054     rs276054 12 58161746 0.9735500</code></pre>
 <p>The <code>Ps</code> object contains p-value information for mapped SNPs. Total 394SNPs are mapped on 9th kegg pathway.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="kw">length</span>(kegg9<span class="op">$</span>Ps)</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a><span class="kw">length</span>(kegg9<span class="op">$</span>Ps)</span></code></pre></div>
 <pre><code>## [1] 394</code></pre>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">kegg9<span class="op">$</span>Ps[<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>]</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true"></a>kegg9<span class="op">$</span>Ps[<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>]</span></code></pre></div>
 <pre><code>##  rs2331902 rs10159067  rs3806284  rs3806283  rs6692913  rs1411479 rs12752307 
 ##  0.2115124  0.9898204  0.9488433  0.4944396  0.5838916  0.4224329  0.3675058 
 ## rs12036052 rs12134601 rs10159443 
 ##  0.1982464  0.9293256  0.9375789</code></pre>
 <p>Using plink, we mapped our SNPs to the reference population ( Hapmap CEU phase 2 ). We dropped the SNPs of minor allele frequency (MAF) less then 5 percent. Among 394 SNPs mapped on 9th Kegg pathway, 330 SNPs are mapped on the reference data. P-values of these SNPs and correlation matirx of SNPs using the reference population, saved on <code>nP</code> and <code>ldmatrix</code> object.</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">kegg9<span class="op">$</span>nP[<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>]</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true"></a>kegg9<span class="op">$</span>nP[<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>]</span></code></pre></div>
 <pre><code>##   rs487230   rs593398  rs6694813   rs550336 rs17111584   rs683880  rs6588545 
 ##  0.9209627  0.8499274  0.9741802  0.6074471  0.5866373  0.9607142  0.3860578 
 ##   rs679804   rs555687   rs497159 
 ##  0.8845177  0.9036468  0.8872636</code></pre>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1">kegg9<span class="op">$</span>ldmatrix[<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>]</a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true"></a>kegg9<span class="op">$</span>ldmatrix[<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>]</span></code></pre></div>
 <pre><code>##              rs487230    rs593398   rs6694813   rs550336  rs17111584   rs683880
 ## rs487230    1.0000000 -0.19188474  0.72579887  0.8910864  0.45580139  0.9742395
 ## rs593398   -0.1918847  1.00000000 -0.17488093 -0.1880254 -0.06052275 -0.1777817
@@ -404,7 +455,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## rs555687    0.41704671  0.73226324  1.0000000  0.73226324
 ## rs497159   -0.07921255  1.00000000  0.7322632  1.00000000</code></pre>
 <p>The <code>snp.info</code> data object have snp information for each mapped SNPs. The 1st column is rsID, 2nd column is Chr, 3rd column is location and 4th column is p-value.</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1">kegg9<span class="op">$</span>snp.info[<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>,]</a></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true"></a>kegg9<span class="op">$</span>snp.info[<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>,]</span></code></pre></div>
 <pre><code>##                  rsID Chr      Loc      Pval
 ## rs487230     rs487230   1 55313762 0.9209627
 ## rs593398     rs593398   1 55314484 0.8499274
@@ -420,71 +471,71 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="use-of-aspus-function" class="section level2">
 <h2>Use of aSPUs function</h2>
 <p>Using the following code we can use <code>aSPUs()</code> and <code>GATES2()</code> function to get gene-wise aSPU and GATES p-value for each gene in 9th Kegg pathway.</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1">Gps&lt;-<span class="ot">NULL</span>;</a>
-<a class="sourceLine" id="cb30-2" data-line-number="2">gl &lt;-<span class="st"> </span><span class="ot">NULL</span>;</a>
-<a class="sourceLine" id="cb30-3" data-line-number="3"><span class="cf">for</span>( g <span class="cf">in</span> kegg9<span class="op">$</span>gene.info[,<span class="dv">1</span>]) {</a>
-<a class="sourceLine" id="cb30-4" data-line-number="4">    snps &lt;-</a>
-<a class="sourceLine" id="cb30-5" data-line-number="5"><span class="st">    </span><span class="kw">which</span>( ( kegg9<span class="op">$</span>snp.info[,<span class="dv">2</span>] <span class="op">==</span><span class="st"> </span>kegg9<span class="op">$</span>gene.info[kegg9<span class="op">$</span>gene.info[,<span class="dv">1</span>]<span class="op">==</span>g,<span class="dv">2</span>]) <span class="op">&amp;</span></a>
-<a class="sourceLine" id="cb30-6" data-line-number="6"><span class="st">           </span>(kegg9<span class="op">$</span>snp.info[,<span class="dv">3</span>] <span class="op">&gt;</span><span class="st"> </span>kegg9<span class="op">$</span>gene.info[kegg9<span class="op">$</span>gene.info[,<span class="dv">1</span>] <span class="op">==</span><span class="st"> </span>g, <span class="dv">3</span>])<span class="op">&amp;</span></a>
-<a class="sourceLine" id="cb30-7" data-line-number="7"><span class="st">           </span>(kegg9<span class="op">$</span>snp.info[,<span class="dv">3</span>] <span class="op">&lt;</span><span class="st"> </span>kegg9<span class="op">$</span>gene.info[kegg9<span class="op">$</span>gene.info[,<span class="dv">1</span>] <span class="op">==</span><span class="st"> </span>g, <span class="dv">4</span>]))</a>
-<a class="sourceLine" id="cb30-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb30-9" data-line-number="9">    newP &lt;-<span class="st"> </span>kegg9<span class="op">$</span>nP[snps] ;</a>
-<a class="sourceLine" id="cb30-10" data-line-number="10">    ldsub &lt;-<span class="st"> </span>kegg9<span class="op">$</span>ldmatrix[snps, snps];</a>
-<a class="sourceLine" id="cb30-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb30-12" data-line-number="12">    <span class="cf">if</span>( <span class="kw">length</span>(snps) <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>) {</a>
-<a class="sourceLine" id="cb30-13" data-line-number="13">        out &lt;-<span class="st"> </span><span class="kw">aSPUs</span>(newP, <span class="dt">corSNP=</span>ldsub , <span class="dt">pow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>, <span class="ot">Inf</span>),</a>
-<a class="sourceLine" id="cb30-14" data-line-number="14">                     <span class="dt">n.perm=</span><span class="dv">10000</span>, <span class="dt">Ps=</span><span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb30-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb30-16" data-line-number="16">        o.pvec =<span class="st"> </span><span class="kw">order</span>(newP)</a>
-<a class="sourceLine" id="cb30-17" data-line-number="17">        ldmat &lt;-<span class="st"> </span>ldsub[o.pvec, o.pvec]</a>
-<a class="sourceLine" id="cb30-18" data-line-number="18">        gatesp &lt;-<span class="st"> </span><span class="kw">GATES2</span>(ldmat, <span class="kw">sort</span>(newP))[<span class="dv">1</span>]</a>
-<a class="sourceLine" id="cb30-19" data-line-number="19">        Gps &lt;-<span class="st"> </span><span class="kw">rbind</span>(Gps, <span class="kw">c</span>(<span class="kw">length</span>(newP),out<span class="op">$</span>pvs, gatesp))</a>
-<a class="sourceLine" id="cb30-20" data-line-number="20">        gl &lt;-<span class="st"> </span><span class="kw">c</span>(gl, g)</a>
-<a class="sourceLine" id="cb30-21" data-line-number="21">    } <span class="cf">else</span> <span class="cf">if</span> (<span class="kw">length</span>(snps) <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) {</a>
-<a class="sourceLine" id="cb30-22" data-line-number="22">        out &lt;-<span class="st"> </span>newP</a>
-<a class="sourceLine" id="cb30-23" data-line-number="23">        gatesp &lt;-<span class="st"> </span>newP</a>
-<a class="sourceLine" id="cb30-24" data-line-number="24">        Gps &lt;-<span class="st"> </span><span class="kw">rbind</span>(Gps, <span class="kw">c</span>(<span class="kw">length</span>(newP),<span class="kw">rep</span>(out,<span class="dv">6</span>), gatesp) )</a>
-<a class="sourceLine" id="cb30-25" data-line-number="25">        gl &lt;-<span class="st"> </span><span class="kw">c</span>(gl, g)</a>
-<a class="sourceLine" id="cb30-26" data-line-number="26">    }</a>
-<a class="sourceLine" id="cb30-27" data-line-number="27">}</a>
-<a class="sourceLine" id="cb30-28" data-line-number="28"><span class="kw">colnames</span>(Gps)[<span class="dv">1</span>] &lt;-<span class="st"> &quot;nSNP&quot;</span></a>
-<a class="sourceLine" id="cb30-29" data-line-number="29"><span class="kw">rownames</span>(Gps) &lt;-<span class="st"> </span>gl</a>
-<a class="sourceLine" id="cb30-30" data-line-number="30">Gps</a></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true"></a>Gps&lt;-<span class="ot">NULL</span>;</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true"></a>gl &lt;-<span class="st"> </span><span class="ot">NULL</span>;</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true"></a><span class="cf">for</span>( g <span class="cf">in</span> kegg9<span class="op">$</span>gene.info[,<span class="dv">1</span>]) {</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true"></a>    snps &lt;-</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true"></a><span class="st">    </span><span class="kw">which</span>( ( kegg9<span class="op">$</span>snp.info[,<span class="dv">2</span>] <span class="op">==</span><span class="st"> </span>kegg9<span class="op">$</span>gene.info[kegg9<span class="op">$</span>gene.info[,<span class="dv">1</span>]<span class="op">==</span>g,<span class="dv">2</span>]) <span class="op">&amp;</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true"></a><span class="st">           </span>(kegg9<span class="op">$</span>snp.info[,<span class="dv">3</span>] <span class="op">&gt;</span><span class="st"> </span>kegg9<span class="op">$</span>gene.info[kegg9<span class="op">$</span>gene.info[,<span class="dv">1</span>] <span class="op">==</span><span class="st"> </span>g, <span class="dv">3</span>])<span class="op">&amp;</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true"></a><span class="st">           </span>(kegg9<span class="op">$</span>snp.info[,<span class="dv">3</span>] <span class="op">&lt;</span><span class="st"> </span>kegg9<span class="op">$</span>gene.info[kegg9<span class="op">$</span>gene.info[,<span class="dv">1</span>] <span class="op">==</span><span class="st"> </span>g, <span class="dv">4</span>]))</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true"></a></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true"></a>    newP &lt;-<span class="st"> </span>kegg9<span class="op">$</span>nP[snps] ;</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true"></a>    ldsub &lt;-<span class="st"> </span>kegg9<span class="op">$</span>ldmatrix[snps, snps];</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true"></a></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true"></a>    <span class="cf">if</span>( <span class="kw">length</span>(snps) <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>) {</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true"></a>        out &lt;-<span class="st"> </span><span class="kw">aSPUs</span>(newP, <span class="dt">corSNP=</span>ldsub , <span class="dt">pow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>, <span class="ot">Inf</span>),</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true"></a>                     <span class="dt">n.perm=</span><span class="dv">10000</span>, <span class="dt">Ps=</span><span class="ot">TRUE</span>)</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true"></a></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true"></a>        o.pvec =<span class="st"> </span><span class="kw">order</span>(newP)</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true"></a>        ldmat &lt;-<span class="st"> </span>ldsub[o.pvec, o.pvec]</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true"></a>        gatesp &lt;-<span class="st"> </span><span class="kw">GATES2</span>(ldmat, <span class="kw">sort</span>(newP))[<span class="dv">1</span>]</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true"></a>        Gps &lt;-<span class="st"> </span><span class="kw">rbind</span>(Gps, <span class="kw">c</span>(<span class="kw">length</span>(newP),out<span class="op">$</span>pvs, gatesp))</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true"></a>        gl &lt;-<span class="st"> </span><span class="kw">c</span>(gl, g)</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true"></a>    } <span class="cf">else</span> <span class="cf">if</span> (<span class="kw">length</span>(snps) <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) {</span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true"></a>        out &lt;-<span class="st"> </span>newP</span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true"></a>        gatesp &lt;-<span class="st"> </span>newP</span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true"></a>        Gps &lt;-<span class="st"> </span><span class="kw">rbind</span>(Gps, <span class="kw">c</span>(<span class="kw">length</span>(newP),<span class="kw">rep</span>(out,<span class="dv">6</span>), gatesp) )</span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true"></a>        gl &lt;-<span class="st"> </span><span class="kw">c</span>(gl, g)</span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true"></a>    }</span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true"></a>}</span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true"></a><span class="kw">colnames</span>(Gps)[<span class="dv">1</span>] &lt;-<span class="st"> &quot;nSNP&quot;</span></span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true"></a><span class="kw">rownames</span>(Gps) &lt;-<span class="st"> </span>gl</span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true"></a>Gps</span></code></pre></div>
 <pre><code>##         nSNP     SPUs1     SPUs2     SPUs4     SPUs8   SPUsInf      aSPUs
-## SOAT1     63 0.7851000 0.7870000 0.7946000 0.7930000 0.7515000 0.85581442
-## SQLE      49 0.6312000 0.6452000 0.6467000 0.6278000 0.5526000 0.65223478
-## CYP51A1    8 0.7950000 0.6956000 0.6147000 0.5666000 0.5069000 0.60013999
-## CYP27B1    3 0.9647000 0.9560000 0.9501000 0.9472000 0.9465000 0.95510449
-## DHCR24    26 0.9250000 0.8737000 0.8158000 0.7800000 0.7322000 0.79702030
-## HSD17B7   43 0.6488000 0.7282000 0.7485000 0.6486000 0.5215000 0.65563444
-## MSMO1      7 0.0110000 0.0076000 0.0111000 0.0177000 0.0351000 0.01439856
-## FDFT1     54 0.3051000 0.2828000 0.2655000 0.2123000 0.1280000 0.17728227
-## LIPA      57 0.0000000 0.0000000 0.0000000 0.0000000 0.0001000 0.00009999
-## CEL        5 0.1723000 0.1932000 0.2365000 0.2779000 0.3097000 0.23287671
+## SOAT1     63 0.7870000 0.7887000 0.7981000 0.7938000 0.7547000 0.85731427
+## SQLE      49 0.6266000 0.6426000 0.6433000 0.6209000 0.5467000 0.64643536
+## CYP51A1    8 0.7840000 0.6925000 0.6097000 0.5631000 0.5047000 0.59784022
+## CYP27B1    3 0.9662000 0.9578000 0.9506000 0.9474000 0.9461000 0.95620438
+## DHCR24    26 0.9265000 0.8724000 0.8204000 0.7816000 0.7381000 0.80471953
+## HSD17B7   43 0.6403000 0.7167000 0.7431000 0.6388000 0.5188000 0.65173483
+## MSMO1      7 0.0099000 0.0101000 0.0141000 0.0217000 0.0407000 0.01709829
+## FDFT1     54 0.3151000 0.2938000 0.2777000 0.2207000 0.1299000 0.18468153
+## LIPA      57 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.00009999
+## CEL        5 0.1739000 0.1939000 0.2356000 0.2742000 0.3049000 0.23557644
 ## TM7SF2     1 0.7816163 0.7816163 0.7816163 0.7816163 0.7816163 0.78161630
-## SOAT2     14 0.2285000 0.2605000 0.3104000 0.3583000 0.3935000 0.27957204
+## SOAT2     14 0.2227000 0.2547000 0.3044000 0.3556000 0.3886000 0.27347265
 ##                   Pg
-## SOAT1   0.3994139131
-## SQLE    0.6527898971
+## SOAT1   0.5686306049
+## SQLE    0.8102291397
 ## CYP51A1 0.6798247959
 ## CYP27B1 0.9735500000
 ## DHCR24  0.9777507000
 ## HSD17B7 0.6360037948
 ## MSMO1   0.0228054242
-## FDFT1   0.1360214136
-## LIPA    0.0001396509
-## CEL     0.2953563549
+## FDFT1   0.1746149004
+## LIPA    0.0001761169
+## CEL     0.2958316751
 ## TM7SF2  0.7816163000
 ## SOAT2   0.3239918282</code></pre>
 <p>The row of <code>Gps</code> means each gene, 1st column indicate the number of SNPs for each gene. 2nd to 6th column indicate SPUs p-values for each power ( 1,2,4,8 and Inf), 7th column indicate aSPUs p-value and 8th column indicate p-value of GATES method. We can see that a gene <em>LIPA</em> is very significant.</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1">g =<span class="st"> &quot;LIPA&quot;</span></a>
-<a class="sourceLine" id="cb32-2" data-line-number="2">    snps &lt;-</a>
-<a class="sourceLine" id="cb32-3" data-line-number="3"><span class="st">    </span><span class="kw">which</span>( ( kegg9<span class="op">$</span>snp.info[,<span class="dv">2</span>] <span class="op">==</span><span class="st"> </span>kegg9<span class="op">$</span>gene.info[kegg9<span class="op">$</span>gene.info[,<span class="dv">1</span>]<span class="op">==</span>g,<span class="dv">2</span>]) <span class="op">&amp;</span></a>
-<a class="sourceLine" id="cb32-4" data-line-number="4"><span class="st">           </span>(kegg9<span class="op">$</span>snp.info[,<span class="dv">3</span>] <span class="op">&gt;</span><span class="st"> </span>kegg9<span class="op">$</span>gene.info[kegg9<span class="op">$</span>gene.info[,<span class="dv">1</span>] <span class="op">==</span><span class="st"> </span>g, <span class="dv">3</span>])<span class="op">&amp;</span></a>
-<a class="sourceLine" id="cb32-5" data-line-number="5"><span class="st">           </span>(kegg9<span class="op">$</span>snp.info[,<span class="dv">3</span>] <span class="op">&lt;</span><span class="st"> </span>kegg9<span class="op">$</span>gene.info[kegg9<span class="op">$</span>gene.info[,<span class="dv">1</span>] <span class="op">==</span><span class="st"> </span>g, <span class="dv">4</span>]))</a>
-<a class="sourceLine" id="cb32-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb32-7" data-line-number="7">newP &lt;-<span class="st"> </span>kegg9<span class="op">$</span>nP[snps] ;</a>
-<a class="sourceLine" id="cb32-8" data-line-number="8">newP</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true"></a>g =<span class="st"> &quot;LIPA&quot;</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true"></a>    snps &lt;-</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true"></a><span class="st">    </span><span class="kw">which</span>( ( kegg9<span class="op">$</span>snp.info[,<span class="dv">2</span>] <span class="op">==</span><span class="st"> </span>kegg9<span class="op">$</span>gene.info[kegg9<span class="op">$</span>gene.info[,<span class="dv">1</span>]<span class="op">==</span>g,<span class="dv">2</span>]) <span class="op">&amp;</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true"></a><span class="st">           </span>(kegg9<span class="op">$</span>snp.info[,<span class="dv">3</span>] <span class="op">&gt;</span><span class="st"> </span>kegg9<span class="op">$</span>gene.info[kegg9<span class="op">$</span>gene.info[,<span class="dv">1</span>] <span class="op">==</span><span class="st"> </span>g, <span class="dv">3</span>])<span class="op">&amp;</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true"></a><span class="st">           </span>(kegg9<span class="op">$</span>snp.info[,<span class="dv">3</span>] <span class="op">&lt;</span><span class="st"> </span>kegg9<span class="op">$</span>gene.info[kegg9<span class="op">$</span>gene.info[,<span class="dv">1</span>] <span class="op">==</span><span class="st"> </span>g, <span class="dv">4</span>]))</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true"></a></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true"></a>newP &lt;-<span class="st"> </span>kegg9<span class="op">$</span>nP[snps] ;</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true"></a>newP</span></code></pre></div>
 <pre><code>## rs10509568 rs10509569 rs12780342  rs7922269  rs6586175 rs12358054  rs1556478 
 ## 0.00031650 0.09359480 0.04754370 0.00000756 0.00216860 0.13601460 0.01681000 
 ## rs12415827  rs2297475  rs2297473  rs2297472  rs2254747  rs2254670  rs2254636 
@@ -508,31 +559,31 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="use-of-aspuspath-function" class="section level2">
 <h2>Use of aSPUsPath function</h2>
 <p>We can get p-value for pathways as follows. Let’s perform pathway based analysis using aSPUsPath, Gates-Simes and HYST.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1">out.g &lt;-<span class="st"> </span><span class="kw">GatesSimes</span>(<span class="dt">pvec =</span> kegg9<span class="op">$</span>nP, <span class="dt">ldmatrix =</span> kegg9<span class="op">$</span>ldmatrix,</a>
-<a class="sourceLine" id="cb34-2" data-line-number="2">                    <span class="dt">snp.info=</span>kegg9<span class="op">$</span>snp.info, <span class="dt">gene.info =</span> kegg9<span class="op">$</span>gene.info)</a>
-<a class="sourceLine" id="cb34-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb34-4" data-line-number="4">out.h &lt;-<span class="st"> </span><span class="kw">Hyst</span>(<span class="dt">pvec =</span> kegg9<span class="op">$</span>nP, <span class="dt">ldmatrix =</span> kegg9<span class="op">$</span>ldmatrix,</a>
-<a class="sourceLine" id="cb34-5" data-line-number="5">              <span class="dt">snp.info=</span>kegg9<span class="op">$</span>snp.info, <span class="dt">gene.info =</span> kegg9<span class="op">$</span>gene.info)</a>
-<a class="sourceLine" id="cb34-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb34-7" data-line-number="7">out.a &lt;-<span class="st"> </span><span class="kw">aSPUsPath</span>(kegg9<span class="op">$</span>nP, <span class="dt">corSNP =</span> kegg9<span class="op">$</span>ldmatrix, <span class="dt">pow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>, <span class="ot">Inf</span>),</a>
-<a class="sourceLine" id="cb34-8" data-line-number="8">                   <span class="dt">pow2 =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>),</a>
-<a class="sourceLine" id="cb34-9" data-line-number="9">                   <span class="dt">snp.info=</span>kegg9<span class="op">$</span>snp.info, <span class="dt">gene.info =</span> kegg9<span class="op">$</span>gene.info,</a>
-<a class="sourceLine" id="cb34-10" data-line-number="10">                   <span class="dt">n.perm=</span><span class="dv">1000</span>, <span class="dt">Ps =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb34-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb34-12" data-line-number="12">out.g; out.h; out.a</a></code></pre></div>
-<pre><code>## [1] 0.00167581</code></pre>
-<pre><code>## [1] 0.07557735</code></pre>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true"></a>out.g &lt;-<span class="st"> </span><span class="kw">GatesSimes</span>(<span class="dt">pvec =</span> kegg9<span class="op">$</span>nP, <span class="dt">ldmatrix =</span> kegg9<span class="op">$</span>ldmatrix,</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true"></a>                    <span class="dt">snp.info=</span>kegg9<span class="op">$</span>snp.info, <span class="dt">gene.info =</span> kegg9<span class="op">$</span>gene.info)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true"></a>out.h &lt;-<span class="st"> </span><span class="kw">Hyst</span>(<span class="dt">pvec =</span> kegg9<span class="op">$</span>nP, <span class="dt">ldmatrix =</span> kegg9<span class="op">$</span>ldmatrix,</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true"></a>              <span class="dt">snp.info=</span>kegg9<span class="op">$</span>snp.info, <span class="dt">gene.info =</span> kegg9<span class="op">$</span>gene.info)</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true"></a></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true"></a>out.a &lt;-<span class="st"> </span><span class="kw">aSPUsPath</span>(kegg9<span class="op">$</span>nP, <span class="dt">corSNP =</span> kegg9<span class="op">$</span>ldmatrix, <span class="dt">pow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>, <span class="ot">Inf</span>),</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true"></a>                   <span class="dt">pow2 =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>),</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true"></a>                   <span class="dt">snp.info=</span>kegg9<span class="op">$</span>snp.info, <span class="dt">gene.info =</span> kegg9<span class="op">$</span>gene.info,</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true"></a>                   <span class="dt">n.perm=</span><span class="dv">1000</span>, <span class="dt">Ps =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true"></a></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true"></a>out.g; out.h; out.a</span></code></pre></div>
+<pre><code>## [1] 0.002113403</code></pre>
+<pre><code>## [1] 0.1011857</code></pre>
 <pre><code>##   SPUsPath1,1   SPUsPath2,1   SPUsPath4,1   SPUsPath8,1 SPUsPathInf,1 
-##         0.311         0.368         0.442         0.521         0.525 
+##         0.824         0.911         0.976         0.991         0.997 
 ##   SPUsPath1,2   SPUsPath2,2   SPUsPath4,2   SPUsPath8,2 SPUsPathInf,2 
-##         0.080         0.090         0.123         0.158         0.175 
+##         0.380         0.557         0.790         0.910         0.964 
 ##   SPUsPath1,4   SPUsPath2,4   SPUsPath4,4   SPUsPath8,4 SPUsPathInf,4 
-##         0.020         0.013         0.010         0.014         0.012 
+##         0.069         0.085         0.204         0.495         0.714 
 ##   SPUsPath1,8   SPUsPath2,8   SPUsPath4,8   SPUsPath8,8 SPUsPathInf,8 
-##         0.016         0.005         0.006         0.004         0.004 
+##         0.037         0.034         0.050         0.164         0.369 
 ##     aSPUsPath 
-##         0.010</code></pre>
-<p>As we can see from the gene-wise analysis, there is only one very significant gene <code>LIPA</code>. In this situation Gates-Simes works well and Gate-Simes p-value is 0.0016758. On the other hand, HYST works well when there are many significant genes with similar effects.</p>
+##         0.108</code></pre>
+<p>As we can see from the gene-wise analysis, there is only one very significant gene <code>LIPA</code>. In this situation Gates-Simes works well and Gate-Simes p-value is 0.0021134. On the other hand, HYST works well when there are many significant genes with similar effects.</p>
 <p>The aSPUsPath adaptively consider all SPUsPath(i,j). We can see that the p-value decrease as our 2nd parameter , <code>pow2</code>, increases. It makes sense because larger <code>pow2</code> is more effective if there are fewer associated genes.</p>
 </div>
 
